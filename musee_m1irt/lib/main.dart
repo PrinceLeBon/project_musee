@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:musee_m1irt/globals.dart';
 import 'package:musee_m1irt/repositories/bibliotheque_repository.dart';
 import 'package:musee_m1irt/repositories/moment_repository.dart';
 import 'package:musee_m1irt/repositories/musee_repository.dart';
@@ -36,40 +37,38 @@ import 'package:sqflite/sqflite.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Future _onConfigure(Database db) async {
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
   final database = openDatabase(
     join(await getDatabasesPath(), 'museum.db'),
     onCreate: (db, version) async {
       await db.execute(
-        'CREATE TABLE Pays (codePays TEXT PRIMARY KEY, nbhabitant INTEGER, UNIQUE(codePays))',
+        'CREATE TABLE Pays (codePays TEXT, nbhabitant INTEGER, PRIMARY KEY(codePays), UNIQUE(codePays))',
       );
       await db.execute(
-          'CREATE TABLE Musee (numMus INTEGER PRIMARY KEY, nomMus TEXT, nblivres INTEGER, codePays TEXT REFERENCES Pays(codePays) ON DELETE CASCADE ON UPDATE CASCADE)');
+          'CREATE TABLE Musee (numMus INTEGER, nomMus TEXT, nblivres INTEGER, codePays TEXT, PRIMARY KEY(numMus), FOREIGN KEY (codePays) REFERENCES Pays (codePays) ON DELETE CASCADE ON UPDATE CASCADE)');
       await db.execute('CREATE TABLE Moment (jour TEXT PRIMARY KEY, UNIQUE(jour))');
       await db.execute(
-        'CREATE TABLE Visiter (id INTEGER, numMus INTEGER REFERENCES Musee(numMus) ON DELETE CASCADE ON UPDATE CASCADE, jour TEXT REFERENCES Moment(jour) ON DELETE CASCADE ON UPDATE CASCADE, nbvisiteurs INTEGER, PRIMARY KEY(numMus, jour))',
+        'CREATE TABLE Visiter (id INTEGER, numMus INTEGER , jour TEXT, nbvisiteurs INTEGER, PRIMARY KEY(numMus, jour), FOREIGN KEY (numMus) REFERENCES Musee (numMus) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (jour) REFERENCES Moment (jour) ON DELETE CASCADE ON UPDATE CASCADE)',
       );
       await db.execute(
-        'CREATE TABLE Ouvrage (ISBN INTEGER PRIMARY KEY, nbPage INTEGER, titre TEXT, codePays TEXT REFERENCES Pays(codePays) ON DELETE CASCADE ON UPDATE CASCADE, UNIQUE(ISBN))',
+        'CREATE TABLE Ouvrage (ISBN INTEGER, nbPage INTEGER, titre TEXT, codePays TEXT, PRIMARY KEY(ISBN), UNIQUE(ISBN), FOREIGN KEY (codePays) REFERENCES Pays (codePays) ON DELETE CASCADE ON UPDATE CASCADE)',
       );
       await db.execute(
-        'CREATE TABLE Bibliotheque (id INTEGER, numMus INTEGER REFERENCES Musee(numMus) ON DELETE CASCADE ON UPDATE CASCADE, ISBN INTEGER REFERENCES Ouvrage(ISBN) ON DELETE CASCADE ON UPDATE CASCADE, dateAchat TEXT, PRIMARY KEY(numMus, ISBN))',
+        'CREATE TABLE Bibliotheque (id INTEGER, numMus INTEGER , ISBN INTEGER, dateAchat TEXT, PRIMARY KEY(numMus, ISBN), FOREIGN KEY (numMus) REFERENCES Musee (numMus) ON DELETE CASCADE ON UPDATE CASCADE, FOREIGN KEY (ISBN) REFERENCES Ouvrage(ISBN) ON DELETE CASCADE ON UPDATE CASCADE)',
       );
     },
+    onConfigure: _onConfigure,
     version: 1,
   );
 
-  final MomentRepository momentRepository =
-      MomentRepository(database: await database);
-  final PaysRepository paysRepository =
-  PaysRepository (database: await database);
-  final MuseeRepository museeRepository =
-  MuseeRepository (database: await database);
-  final BibliothequeRepository bibliothequeRepository =
-  BibliothequeRepository (database: await database);
-  final VisiterRepository visiterRepository =
-  VisiterRepository (database: await database);
-  final OuvrageRepository ouvrageRepository =
-  OuvrageRepository (database: await database);
+  momentRepository = MomentRepository(database: await database);
+  paysRepository = PaysRepository (database: await database);
+  museeRepository = MuseeRepository(database: await database);
+  bibliothequeRepository = BibliothequeRepository (database: await database);
+  visiterRepository = VisiterRepository (database: await database);
+  ouvrageRepository = OuvrageRepository (database: await database);
 
   momentRepository.initialize();
   paysRepository.initialize();

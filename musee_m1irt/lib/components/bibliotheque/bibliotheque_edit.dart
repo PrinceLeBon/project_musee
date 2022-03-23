@@ -51,30 +51,24 @@ class _Bibliotheque_editState extends State<Bibliotheque_edit> {
     super.initState();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) => showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<EditBibliothequeBloc, EditBibliothequeState>(
-        listener: (content, state) {
-          if (state is EditBibliothequeSuccessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Modifiaction effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
+          listener: (content, state) {
+            if (state is EditBibliothequeSuccessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Modifiaction effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Modification d'une bibliothèque".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Modification d'une bibliothèque".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
               DropdownButtonFormField<String>(
                 value: _value1,
                 items: _liste1,
@@ -152,9 +146,9 @@ class _Bibliotheque_editState extends State<Bibliotheque_edit> {
                 ],
               )
             ],
-          ),
-        ),
-      ));
+          )
+        )
+  );
 
   @override
   Widget build(BuildContext context) {

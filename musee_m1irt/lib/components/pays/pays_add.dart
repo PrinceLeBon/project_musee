@@ -26,101 +26,94 @@ class _Pays_addState extends State<Pays_add> {
     super.dispose();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) => showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<AddPaysBloc, AddPaysState>(
-            listener: (content, state) {
-              if (state is AddPaysSucessState) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Ajout effectué'),
-                  duration: Duration(seconds: 1),
-                ));
-              }
-            },
-            child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Wrap(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "Création d'un pays'".toUpperCase(),
-                          style: Theme.of(context).textTheme.headline6,
-                        ),
-                      ),
-                      champ_a_remplir(_controller1, 'Entre le code du pays',
-                          TextInputType.text),
-                      champ_a_remplir(_controller2, "Nombre d'habitants",
-                          TextInputType.number),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                _controller1.clear();
-                                _controller2.clear();
-                                Navigator.pop(context);
-                              },
-                              child: Text("Anuuler".toUpperCase())),
-                          TextButton(
-                              onPressed: () {
-                                if (_controller1.text.isNotEmpty &&
-                                    _controller2.text.isNotEmpty) {
-                                  if (listpays.isNotEmpty) {
-                                    for (int i = 0; i < listpays.length; i++) {
-                                      if ((listpays[i].codePays ==
-                                          _controller1.text.toUpperCase())){
-                                        (trouve = true);
-                                        break;
-                                      }else {
-                                        (trouve = false);
-                                      }
-                                    }
-                                    if (trouve) {
-                                      _controller1.clear();
-                                      _controller2.clear();
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                              content: Text(
-                                                  'Deux pays ne peuvent pas avoir le meme code')));
-                                    } else {
-                                      context.read<AddPaysBloc>().add(
-                                          OnAddPaysEvent(
-                                              codePays: _controller1.text
-                                                  .toUpperCase(),
-                                              nbhabitant: int.parse(
-                                                  _controller2.text)));
-                                      _controller1.clear();
-                                      _controller2.clear();
-                                    }
-                                  } else {
-                                    context.read<AddPaysBloc>().add(
-                                        OnAddPaysEvent(
-                                            codePays:
-                                                _controller1.text.toUpperCase(),
-                                            nbhabitant:
-                                                int.parse(_controller2.text)));
-                                    _controller1.clear();
-                                    _controller2.clear();
-                                  }
-                                } else {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              'Aucun champ ne doit etre vide')));
-                                }
-                              },
-                              child: Text("Ajouter".toUpperCase()))
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-          ));
+        listener: (content, state) {
+          if (state is AddPaysSucessState) {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Ajout effectué'),
+              duration: Duration(seconds: 1),
+            ));
+          }
+        },
+        child: SimpleDialog(
+          title: Text(
+            "Création d'un pays".toUpperCase(),
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          children: [
+            champ_a_remplir(_controller1, 'Entre le code du pays',
+                TextInputType.text),
+            champ_a_remplir(_controller2, "Nombre d'habitants",
+                TextInputType.number),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                    onPressed: () {
+                      _controller1.clear();
+                      _controller2.clear();
+                      Navigator.pop(context);
+                    },
+                    child: Text("Anuuler".toUpperCase())),
+                TextButton(
+                    onPressed: () {
+                      if (_controller1.text.isNotEmpty &&
+                          _controller2.text.isNotEmpty) {
+                        if (listpays.isNotEmpty) {
+                          for (int i = 0; i < listpays.length; i++) {
+                            if ((listpays[i].codePays ==
+                                _controller1.text.toUpperCase())){
+                              (trouve = true);
+                              break;
+                            }else {
+                              (trouve = false);
+                            }
+                          }
+                          if (trouve) {
+                            _controller1.clear();
+                            _controller2.clear();
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                                content: Text(
+                                    'Deux pays ne peuvent pas avoir le meme code')));
+                          } else {
+                            context.read<AddPaysBloc>().add(
+                                OnAddPaysEvent(
+                                    codePays: _controller1.text
+                                        .toUpperCase(),
+                                    nbhabitant: int.parse(
+                                        _controller2.text)));
+                            _controller1.clear();
+                            _controller2.clear();
+                          }
+                        } else {
+                          context.read<AddPaysBloc>().add(
+                              OnAddPaysEvent(
+                                  codePays:
+                                  _controller1.text.toUpperCase(),
+                                  nbhabitant:
+                                  int.parse(_controller2.text)));
+                          _controller1.clear();
+                          _controller2.clear();
+                        }
+                      } else {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Aucun champ ne doit etre vide')));
+                      }
+                    },
+                    child: Text("Ajouter".toUpperCase()))
+              ],
+            )
+          ],
+        )))
+        ;
 
   @override
   Widget build(BuildContext context) {

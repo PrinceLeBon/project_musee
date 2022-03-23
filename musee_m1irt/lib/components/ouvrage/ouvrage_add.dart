@@ -39,30 +39,24 @@ class _Ouvrage_addState extends State<Ouvrage_add> {
     super.dispose();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) => showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<AddOuvrageBloc, AddOuvrageState>(
-        listener: (content, state) {
-          if (state is AddOuvrageSucessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Ajout effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
+          listener: (content, state) {
+            if (state is AddOuvrageSucessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Ajout effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+          title: Text(
+            "Création d'un ouvrage".toUpperCase(),
+            style: Theme.of(context).textTheme.headline6,
+          ),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Création d'un ouvrage".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
               champ_a_remplir(
                   _controller1, "ISBN", TextInputType.number),
               champ_a_remplir(_controller2, "Titre",
@@ -99,11 +93,11 @@ class _Ouvrage_addState extends State<Ouvrage_add> {
                             _controller2.text.isNotEmpty &&
                             _controller3.text.isNotEmpty && _controller4.text.isNotEmpty) {
                           context.read<AddOuvrageBloc>().add(
-                            OnAddOuvrageEvent(
-                                ISBN: int.parse(_controller1.text),
-                                nbPage: int.parse(_controller3.text),
-                                titre: _controller2.text,
-                                codePays: _controller4.text));
+                              OnAddOuvrageEvent(
+                                  ISBN: int.parse(_controller1.text),
+                                  nbPage: int.parse(_controller3.text),
+                                  titre: _controller2.text,
+                                  codePays: _controller4.text));
 
                           _controller1.clear();
                           _controller2.clear();
@@ -121,9 +115,7 @@ class _Ouvrage_addState extends State<Ouvrage_add> {
                 ],
               )
             ],
-          ),
-        ),
-      ));
+        )));
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:musee_m1irt/globals.dart';
 import 'package:musee_m1irt/models/visiter_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -27,6 +28,26 @@ class VisiterRepository{
   Future<void> initialize() async {
 
     List<Map<String, dynamic>> maps = await database.query('Visiter');
+    listvisiter.addAll(maps);
+
+    print('au début visiter $listvisiter');
+
+    List<VisiterModel> visiter =
+    listvisiter.map((e) => VisiterModel(
+        id: e["id"],
+        numMus: e["numMus"],
+        jour: e["jour"],
+        nbvisiteurs: e["nbvisiteurs"]
+    )).toList();
+
+    _visitercontroller.add(visiter);
+
+  }
+
+  Future<void> reinitialize() async {
+
+    List<Map<String, dynamic>> maps = await database.query('Visiter');
+    listvisiter.clear();
     listvisiter.addAll(maps);
 
     print('au début visiter $listvisiter');
@@ -74,15 +95,43 @@ class VisiterRepository{
 
   Future<void> update(Map<String, dynamic> data, Map<String, dynamic> ancienne) async {
     final VisiterModel visiterModel = VisiterModel(
-        id: ancienne["id"],
-        numMus: ancienne["numMus"],
-        jour: ancienne["jour"],
-        nbvisiteurs: ancienne["nbvisiteurs"]);
+        id: data["id"],
+        numMus: data["numMus"],
+        jour: data["jour"],
+        nbvisiteurs: data["nbvisiteurs"]);
 
-    await remove(visiterModel);
-    await add(data);
+    database.update(
+      'Visiter',
+      visiterModel.toJson(),
+      where: 'id = ?',
+      whereArgs: [ancienne["id"]],
+    );
 
-    print('Après modification $listvisiter');
+    List<VisiterModel> visiter =
+    listvisiter.map((e) => VisiterModel(
+        id: e["id"],
+        numMus: e["numMus"],
+        jour: e["jour"],
+        nbvisiteurs: e["nbvisiteurs"]
+    )).toList();
+    int id = visiter.indexWhere((element) => element.id == ancienne["id"]);
+    visiter.removeAt(id);
+    visiter.insert(id, VisiterModel(id: data["id"], numMus: data["numMus"], jour: data["jour"], nbvisiteurs: data["nbvisiteurs"]));
+    listvisiter.removeAt(id);
+    listvisiter.insert(id, {
+      "id": data["id"],
+      "numMus": data["numMus"],
+      "jour": data["jour"],
+      "nbvisiteurs": data["nbvisiteurs"]
+    });
+    _visitercontroller.add(visiter);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
+
   }
 
   Future<void> remove(VisiterModel visiterModel) async{
@@ -103,8 +152,13 @@ class VisiterRepository{
         jour: e["jour"],
         nbvisiteurs: e["nbvisiteurs"]
     )).toList();
-
     _visitercontroller.add(visiter);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
     print('Après suppresion $listvisiter');
   }
 

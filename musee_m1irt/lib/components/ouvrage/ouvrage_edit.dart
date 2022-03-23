@@ -41,30 +41,24 @@ class _Ouvrage_editState extends State<Ouvrage_edit> {
     super.initState();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) => showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<EditOuvrageBloc, EditOuvrageState>(
-        listener: (content, state) {
-          if (state is EditOuvrageSuccessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Modification effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
+          listener: (content, state) {
+            if (state is EditOuvrageSuccessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Modification effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Modification d'un ouvrage".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Création d'un ouvrage".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
               champ_a_remplir(
                   _controller1, "ISBN", TextInputType.number),
               champ_a_remplir(_controller2, "Titre",
@@ -101,12 +95,12 @@ class _Ouvrage_editState extends State<Ouvrage_edit> {
                             _controller2.text.isNotEmpty &&
                             _controller3.text.isNotEmpty && _controller4.text.isNotEmpty) {
                           context.read<EditOuvrageBloc>().add(
-                            OnEditOuvrageEvent(
-                                ISBN: int.parse(_controller1.text),
-                                ISBN1: isbn,
-                                nbPage: int.parse(_controller3.text),
-                                titre: _controller2.text,
-                                codePays: _value));
+                              OnEditOuvrageEvent(
+                                  ISBN: int.parse(_controller1.text),
+                                  ISBN1: isbn,
+                                  nbPage: int.parse(_controller3.text),
+                                  titre: _controller2.text,
+                                  codePays: _value));
                           _controller1.clear();
                           _controller2.clear();
                           _controller3.clear();
@@ -123,9 +117,8 @@ class _Ouvrage_editState extends State<Ouvrage_edit> {
                 ],
               )
             ],
-          ),
-        ),
-      ));
+          )))
+      ;
 
   @override
   Widget build(BuildContext context) {

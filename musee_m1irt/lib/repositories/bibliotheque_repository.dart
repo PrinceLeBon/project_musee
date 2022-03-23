@@ -1,3 +1,4 @@
+import 'package:musee_m1irt/globals.dart';
 import 'package:musee_m1irt/models/bibliotheque_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -43,6 +44,22 @@ class BibliothequeRepository{
 
   }
 
+  Future<void> reinitialize() async {
+    List<Map<String, dynamic>> maps = await database.query('Bibliotheque');
+    listbiblio.clear();
+    listbiblio.addAll(maps);
+
+    List<BibliothequeModel> bibliotheque =
+    listbiblio.map((e) => BibliothequeModel(
+        id: e["id"],
+        numMus: e["numMus"],
+        ISBN: e["ISBN"],
+        dateAchat: e["dateAchat"]
+    )).toList();
+
+    _bibliothequeController.add(bibliotheque);
+  }
+
   Future<void> add(Map<String, dynamic> data) async{
 
     final BibliothequeModel bibliothequeModel = BibliothequeModel(
@@ -73,16 +90,44 @@ class BibliothequeRepository{
   }
 
   Future<void> update(Map<String, dynamic> data, Map<String, dynamic> ancienne) async {
-    final BibliothequeModel ancienbibliothequeModel = BibliothequeModel(
-        id: ancienne["id"],
-        numMus: ancienne["numMus"],
-        ISBN: ancienne["ISBN"],
-        dateAchat: ancienne["dateAchat"]);
+    final BibliothequeModel bibliothequeModel = BibliothequeModel(
+        id: data["id"],
+        numMus: data["numMus"],
+        ISBN: data["ISBN"],
+        dateAchat: data["dateAchat"]);
+    database.update(
+      'Bibliotheque',
+      bibliothequeModel.toJson(),
+      where: 'id = ?',
+      whereArgs: [ancienne["id"]],
+    );
 
-    await remove(ancienbibliothequeModel);
-    await add(data);
+    List<BibliothequeModel> bibliotheque =
+    listbiblio.map((e) => BibliothequeModel(
+        id: e["id"],
+        numMus: e["numMus"],
+        ISBN: e["ISBN"],
+        dateAchat: e["dateAchat"]
+    )).toList();
 
-    print('Après modification $listbiblio');
+    int id = bibliotheque.indexWhere((element) => element.id == ancienne["id"]);
+    bibliotheque.removeAt(id);
+    bibliotheque.insert(id, BibliothequeModel(id: data["id"], numMus: data["numMus"], ISBN: data["ISBN"], dateAchat: data["dateAchat"]));
+    listbiblio.removeAt(id);
+    listbiblio.insert(id, {
+      "id": data["id"],
+      "numMus": data["numMus"],
+      "ISBN": data["ISBN"],
+      "dateAchat": data["dateAchat"]
+    });
+    _bibliothequeController.add(bibliotheque);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
+
   }
 
   Future<void> remove(BibliothequeModel bibliothequeModel) async{
@@ -105,6 +150,12 @@ class BibliothequeRepository{
     )).toList();
 
     _bibliothequeController.add(bibliotheque);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
     print('Après suppresion $listbiblio');
   }
 

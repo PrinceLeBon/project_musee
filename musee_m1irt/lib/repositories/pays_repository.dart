@@ -1,4 +1,6 @@
+import 'package:musee_m1irt/globals.dart';
 import 'package:musee_m1irt/models/pays_model.dart';
+import 'package:musee_m1irt/repositories/musee_repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
 
@@ -22,6 +24,21 @@ class PaysRepository{
   Future<void> initialize() async {
 
     List<Map<String, dynamic>> maps = await database.query('Pays');
+    listpays.addAll(maps);
+
+    print('au début pays $listpays');
+
+    List<PaysModel> pays =
+    listpays.map((e) => PaysModel(codePays: e["codePays"], nbhabitant: e["nbhabitant"])).toList();
+
+    _payscontroller.add(pays);
+
+  }
+
+  Future<void> reinitialize() async {
+
+    List<Map<String, dynamic>> maps = await database.query('Pays');
+    listpays.clear();
     listpays.addAll(maps);
 
     print('au début pays $listpays');
@@ -57,13 +74,33 @@ class PaysRepository{
 
   Future<void> update(Map<String, dynamic> data, Map<String, dynamic> ancienne) async {
     final PaysModel paysModel = PaysModel(
-        codePays: ancienne["codePays"],
-        nbhabitant: ancienne["nbhabitant"]);
+        codePays: data["codePays"],
+        nbhabitant: data["nbhabitant"]);
+    database.update(
+      'Pays',
+      paysModel.toJson(),
+      where: 'codePays = ?',
+      whereArgs: [ancienne["codePays"]],
+    );
 
-    await remove(paysModel);
-    await add(data);
+    List<PaysModel> pays =
+    listpays.map((e) => PaysModel(codePays: e["codePays"], nbhabitant: e["nbhabitant"])).toList();
+    int id = pays.indexWhere((element) => element.codePays == ancienne["codePays"]);
+    pays.removeAt(id);
+    pays.insert(id, PaysModel(codePays: data["codePays"], nbhabitant: data["nbhabitant"]));
 
-    print('Après modification $listpays');
+    listpays.removeAt(id);
+    listpays.insert(id, {
+      "codePays": data["codePays"],
+      "nbhabitant": data["nbhabitant"]
+    });
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
+    _payscontroller.add(pays);
   }
 
   Future<void> remove(PaysModel paysModel) async{
@@ -79,8 +116,13 @@ class PaysRepository{
 
     List<PaysModel> pays =
     listpays.map((e) => PaysModel(codePays: e["codePays"], nbhabitant: e["nbhabitant"])).toList();
-
     _payscontroller.add(pays);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
     print('Après suppresion $listpays');
   }
 

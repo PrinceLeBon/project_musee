@@ -42,9 +42,8 @@ class _Bibliotheque_addState extends State<Bibliotheque_add> {
     super.dispose();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) => showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<AddBibliothequeBloc, AddBibliothequeState>(
         listener: (content, state) {
           if (state is AddBibliothequeSucessState) {
@@ -55,94 +54,89 @@ class _Bibliotheque_addState extends State<Bibliotheque_add> {
             ));
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Création d'une bibliothèque".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
+        child: SimpleDialog(
+          title: Text(
+            "Création d'une bibliothèque".toUpperCase(),
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          children: [
+            DropdownButtonFormField<String>(
+              value: _value1,
+              items: _liste1,
+              onChanged: (value) {
+                setState(() {
+                  _value1 = value;
+                  _controller1.text = _value1;
+                });
+
+              },
+              hint: Text("Numéro Musée"),
+            ),
+            DropdownButtonFormField<String>(
+              value: _value2,
+              items: _liste2,
+              onChanged: (value) {
+                setState(() {
+                  _value2 = value;
+                  _controller2.text = _value2;
+                });
+
+              },
+              hint: Text("ISBN"),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Card(
+                  child: Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"),
                 ),
-              ),
-              DropdownButtonFormField<String>(
-                value: _value1,
-                items: _liste1,
-                onChanged: (value) {
-                  setState(() {
-                    _value1 = value;
-                    _controller1.text = _value1;
-                  });
-
-                },
-                hint: Text("Numéro Musée"),
-              ),
-              DropdownButtonFormField<String>(
-                value: _value2,
-                items: _liste2,
-                onChanged: (value) {
-                  setState(() {
-                    _value2 = value;
-                    _controller2.text = _value2;
-                  });
-
-                },
-                hint: Text("ISBN"),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Card(
-                    child: Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"),
-                  ),
-                  ElevatedButton(
+                ElevatedButton(
+                  onPressed: () {
+                    _selectDate(context);
+                  },
+                  child: const Text("Choisir une date"),
+                )
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
                     onPressed: () {
-                      _selectDate(context);
+                      _controller1.clear();
+                      _controller2.clear();
+                      _controller3.clear();
+                      Navigator.pop(context);
                     },
-                    child: const Text("Choisir une date"),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                      onPressed: () {
+                    child: Text("Anuuler".toUpperCase())),
+                TextButton(
+                    onPressed: () {
+                      if (_controller1.text.isNotEmpty &&
+                          _controller2.text.isNotEmpty &&
+                          _controller3.text.isNotEmpty) {
+                        context.read<AddBibliothequeBloc>().add(
+                            OnAddBibliothequeEvent(
+                                numMus: int.parse(_controller1.text),
+                                ISBN: int.parse(_controller2.text),
+                                dateAchat: _controller3.text));
                         _controller1.clear();
                         _controller2.clear();
                         _controller3.clear();
+                      } else {
                         Navigator.pop(context);
-                      },
-                      child: Text("Anuuler".toUpperCase())),
-                  TextButton(
-                      onPressed: () {
-                        if (_controller1.text.isNotEmpty &&
-                            _controller2.text.isNotEmpty &&
-                            _controller3.text.isNotEmpty) {
-                          context.read<AddBibliothequeBloc>().add(
-                              OnAddBibliothequeEvent(
-                                  numMus: int.parse(_controller1.text),
-                                  ISBN: int.parse(_controller2.text),
-                                  dateAchat: _controller3.text));
-                          _controller1.clear();
-                          _controller2.clear();
-                          _controller3.clear();
-                        } else {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                              content: Text(
-                                  'Aucun champ ne doit etre vide')));
-                        }
-                      },
-                      child: Text("Ajouter".toUpperCase()))
-                ],
-              )
-            ],
-          ),
-        ),
-      ));
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                            content: Text(
+                                'Aucun champ ne doit etre vide')));
+                      }
+                    },
+                    child: Text("Ajouter".toUpperCase()))
+              ],
+            )
+          ],
+        )
+        ))
+      ;
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +176,12 @@ class _Bibliotheque_addState extends State<Bibliotheque_add> {
     final DateTime? selected = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(2010),
-      lastDate: DateTime(2025),
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2023),
       initialEntryMode: DatePickerEntryMode.input
 
     );
-    if (selected != null && selected != selectedDate) {
+    if (selected != null) {
       setState(() {
         selectedDate = selected;
         _controller3.text= "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";

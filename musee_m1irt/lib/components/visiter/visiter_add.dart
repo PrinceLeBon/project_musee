@@ -41,96 +41,87 @@ class _Visiter_addState extends State<Visiter_add> {
     super.dispose();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
-      context: context,
-      //blocklistener pour écouter une action
+  void _modal(BuildContext context) => showDialog(context: context,
       builder: (context) => BlocListener<AddVisiterBloc, AddVisiterState>(
-        listener: (content, state) {
-          if (state is AddVisiterSucessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Ajout effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Création d'une visite".toUpperCase(),
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _value1,
-                      items: _liste1,
-                      onChanged: (value) {
-                        setState(() {
-                          _value1 = value;
-                          _controller1.text = _value1;
-                        });
+          listener: (content, state) {
+            if (state is AddVisiterSucessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Ajout effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Création d'une visite".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            children: [
+              DropdownButtonFormField<String>(
+                value: _value1,
+                items: _liste1,
+                onChanged: (value) {
+                  setState(() {
+                    _value1 = value;
+                    _controller1.text = _value1;
+                  });
 
-                      },
-                      hint: Text("Numéro Musée"),
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _value2,
-                      items: _liste2,
-                      onChanged: (value) {
-                        setState(() {
-                          _value2 = value;
-                          _controller2.text = _value2;
-                        });
-
-                      },
-                      hint: Text("Jour"),
-                    ),
-                    champ_a_remplir(_controller3, "Nombre de visiteurs",
-                        TextInputType.number),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                            onPressed: () {
-                              _controller1.clear();
-                              _controller2.clear();
-                              _controller3.clear();
-                              Navigator.pop(context);
-                            },
-                            child: Text("Anuuler".toUpperCase())),
-                        TextButton(
-                            onPressed: () {
-                              if (_controller1.text.isNotEmpty &&
-                                  _controller2.text.isNotEmpty &&
-                                  _controller3.text.isNotEmpty) {
-                                context.read<AddVisiterBloc>().add(
-                                    OnAddVisiterEvent(
-                                        numMus: int.parse(_controller1.text),
-                                        jour: _controller2.text,
-                                        nbvisiteurs: int.parse(
-                                            _controller3.text)));
-                                _controller1.clear();
-                                _controller2.clear();
-                                _controller3.clear();
-                              } else {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                    content: Text(
-                                        'Aucun champ ne doit etre vide')));
-                              }
-                            },
-                            child: Text("Ajouter".toUpperCase()))
-                      ],
-                    )
-                  ],
-                ),
+                },
+                hint: Text("Numéro Musée"),
               ),
-      ));
+              DropdownButtonFormField<String>(
+                value: _value2,
+                items: _liste2,
+                onChanged: (value) {
+                  setState(() {
+                    _value2 = value;
+                    _controller2.text = _value2;
+                  });
+
+                },
+                hint: Text("Jour"),
+              ),
+              champ_a_remplir(_controller3, "Nombre de visiteurs",
+                  TextInputType.number),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        _controller1.clear();
+                        _controller2.clear();
+                        _controller3.clear();
+                        Navigator.pop(context);
+                      },
+                      child: Text("Anuuler".toUpperCase())),
+                  TextButton(
+                      onPressed: () {
+                        if (_controller1.text.isNotEmpty &&
+                            _controller2.text.isNotEmpty &&
+                            _controller3.text.isNotEmpty) {
+                          context.read<AddVisiterBloc>().add(
+                              OnAddVisiterEvent(
+                                  numMus: int.parse(_controller1.text),
+                                  jour: _controller2.text,
+                                  nbvisiteurs: int.parse(
+                                      _controller3.text)));
+                          _controller1.clear();
+                          _controller2.clear();
+                          _controller3.clear();
+                        } else {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Aucun champ ne doit etre vide')));
+                        }
+                      },
+                      child: Text("Ajouter".toUpperCase()))
+                ],
+              )
+            ],
+          )));
 
   @override
   Widget build(BuildContext context) {

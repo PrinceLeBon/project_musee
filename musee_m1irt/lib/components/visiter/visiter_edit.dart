@@ -45,30 +45,23 @@ class _Visiter_editState extends State<Visiter_edit> {
   }
 
 
-  void _modal(BuildContext context) => showModalBottomSheet(
-      context: context,
-      //blocklistener pour écouter une action
+  void _modal(BuildContext context) => showDialog(context: context,
       builder: (context) => BlocListener<EditVisiterBloc, EditVisiterState>(
-        listener: (content, state) {
-          if (state is EditVisiterSuccessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Modification effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
+          listener: (content, state) {
+            if (state is EditVisiterSuccessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Modification effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Modification d'une visite".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Modification d'une visite".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
               DropdownButtonFormField<String>(
                 value: _value1,
                 items: _liste1,
@@ -112,11 +105,11 @@ class _Visiter_editState extends State<Visiter_edit> {
                             _controller2.text.isNotEmpty &&
                             _controller3.text.isNotEmpty) {
                           context.read<EditVisiterBloc>().add(
-                            OnEditVisiterEvent(
-                                id: id,
-                                numMus: int.parse(_value1),
-                                jour: _value2,
-                                nbvisiteurs: int.parse(_controller3.text)));
+                              OnEditVisiterEvent(
+                                  id: id,
+                                  numMus: int.parse(_value1),
+                                  jour: _value2,
+                                  nbvisiteurs: int.parse(_controller3.text)));
                           _controller1.clear();
                           _controller2.clear();
                           _controller3.clear();
@@ -132,9 +125,7 @@ class _Visiter_editState extends State<Visiter_edit> {
                 ],
               )
             ],
-          ),
-        ),
-      ));
+          )));
 
   @override
   Widget build(BuildContext context) {

@@ -41,30 +41,25 @@ class _Musee_editState extends State<Musee_edit> {
     super.initState();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
+  void _modal(BuildContext context) =>
+  showDialog(
       context: context,
-      //blocklistener pour écouter une action
       builder: (context) => BlocListener<EditMuseeBloc, EditMuseeState>(
-        listener: (content, state) {
-          if (state is EditMuseeSuccessState) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Modification effectué'),
-              duration: Duration(seconds: 1),
-            ));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Wrap(
+          listener: (content, state) {
+            if (state is EditMuseeSuccessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Modification effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Modification d'un musée".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Création d'un musée".toUpperCase(),
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
               champ_a_remplir(
                   _controller1, "Nom du musée", TextInputType.text),
               champ_a_remplir(_controller2, "Nombre de livres",
@@ -98,14 +93,14 @@ class _Musee_editState extends State<Musee_edit> {
                             _controller2.text.isNotEmpty &&
                             _controller3.text.isNotEmpty) {
                           context.read<EditMuseeBloc>().add(
-                            OnEditMuseeEvent(
-                                numMus: num,
-                                nomMus: _controller1.text,
-                                nomMus1: _controller1.text,
-                                nblivres: int.parse(_controller2.text),
-                                nblivres1: int.parse(_controller2.text),
-                                codePays: _value,
-                                codePays1: _value));
+                              OnEditMuseeEvent(
+                                  numMus: num,
+                                  nomMus: _controller1.text,
+                                  nomMus1: _controller1.text,
+                                  nblivres: int.parse(_controller2.text),
+                                  nblivres1: int.parse(_controller2.text),
+                                  codePays: _value,
+                                  codePays1: _value));
                           _controller1.clear();
                           _controller2.clear();
                           _controller3.clear();
@@ -121,9 +116,8 @@ class _Musee_editState extends State<Musee_edit> {
                 ],
               )
             ],
-          ),
-        ),
-      ));
+          ))
+  );
 
   @override
   Widget build(BuildContext context) {

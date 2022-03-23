@@ -62,8 +62,8 @@ class moment_list extends StatelessWidget {
                       context.read<RemoveMomentBloc>().add(
                           OnRemoveMomentEvent(momentModel: listMoment[index])
                       );
-                    }else if (direction == DismissDirection.startToEnd){
-
+                    }else{
+                      Moment_edit(listMoment[index].jour);
                     }
                   },
                 )

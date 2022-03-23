@@ -1,3 +1,4 @@
+import 'package:musee_m1irt/globals.dart';
 import 'package:musee_m1irt/models/ouvrage_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -43,6 +44,25 @@ class OuvrageRepository{
 
   }
 
+  Future<void> reinitialize() async {
+
+    List<Map<String, dynamic>> maps = await database.query('Ouvrage');
+    listouvrage.clear();
+    listouvrage.addAll(maps);
+
+    print('au début ouvrage $listouvrage');
+
+    List<OuvrageModel> ouvrage =
+    listouvrage.map((e) => OuvrageModel(
+        ISBN: e["ISBN"],
+        nbPage: e["nbPage"],
+        titre: e["titre"],
+        codePays: e["codePays"]
+    )).toList();
+    _ouvragecontroller.add(ouvrage);
+
+  }
+
   Future<void> add(Map<String, dynamic> data) async{
 
     final OuvrageModel ouvrageModel = OuvrageModel(
@@ -74,15 +94,41 @@ class OuvrageRepository{
 
   Future<void> update(Map<String, dynamic> data, Map<String, dynamic> ancienne) async {
     final OuvrageModel ouvrageModel = OuvrageModel(
-        ISBN: ancienne["ISBN"],
-        nbPage: ancienne["nbPage"],
-        titre: ancienne["titre"],
-        codePays: ancienne["codePays"]);
+        ISBN: data["ISBN"],
+        nbPage: data["nbPage"],
+        titre: data["titre"],
+        codePays: data["codePays"]);
+    database.update(
+      'Ouvrage',
+      ouvrageModel.toJson(),
+      where: 'ISBN = ?',
+      whereArgs: [ancienne["ISBN"]],
+    );
 
-    await remove(ouvrageModel);
-    await add(data);
-
-    print('Après modification $listouvrage');
+    List<OuvrageModel> ouvrage =
+    listouvrage.map((e) => OuvrageModel(
+        ISBN: e["ISBN"],
+        nbPage: e["nbPage"],
+        titre: e["titre"],
+        codePays: e["codePays"]
+    )).toList();
+    int id = ouvrage.indexWhere((element) => element.ISBN == ancienne["ISBN"]);
+    ouvrage.removeAt(id);
+    ouvrage.insert(id, OuvrageModel(ISBN: data["ISBN"], nbPage: data["nbPage"], titre: data["titre"], codePays: data["codePays"]));
+    listouvrage.removeAt(id);
+    listouvrage.insert(id, {
+      "ISBN": data["ISBN"],
+      "nbPage": data["nbPage"],
+      "titre": data["titre"],
+      "codePays": data["codePays"]
+    });
+    _ouvragecontroller.add(ouvrage);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
   }
 
   Future<void> remove(OuvrageModel ouvrageModel) async{
@@ -103,8 +149,13 @@ class OuvrageRepository{
         titre: e["titre"],
         codePays: e["codePays"]
     )).toList();
-
     _ouvragecontroller.add(ouvrage);
+    ouvrageRepository.reinitialize();
+    bibliothequeRepository.reinitialize();
+    paysRepository.reinitialize();
+    museeRepository.reinitialize();
+    visiterRepository.reinitialize();
+    momentRepository.reinitialize();
     print('Après suppresion $listouvrage');
   }
 

@@ -13,6 +13,7 @@ class EditMuseeBloc extends Bloc<EditMuseeEvent, EditMuseeState> {
     on<OnEditMuseeEvent>((event, emit) async{
       // TODO: implement event handler
       await museeRepository.update({
+        "numMus": event.numMus,
         "nomMus": event.nomMus,
         "nblivres": event.nblivres,
         "codePays": event.codePays,

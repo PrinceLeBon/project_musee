@@ -40,87 +40,78 @@ class _Musee_addState extends State<Musee_add> {
     super.dispose();
   }
 
-  void _modal(BuildContext context) => showModalBottomSheet(
-      context: context,
-      //blocklistener pour écouter une action
+  void _modal(BuildContext context) => showDialog(context: context,
       builder: (context) => BlocListener<AddMuseeBloc, AddMuseeState>(
-            listener: (content, state) {
-              if (state is AddMuseeSucessState) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Ajout effectué'),
-                  duration: Duration(seconds: 1),
-                ));
-              }
-            },
-            child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Création d'un musée".toUpperCase(),
-                              style: Theme.of(context).textTheme.headline6,
-                            ),
-                          ),
-                          champ_a_remplir(
-                              _controller1, "Nom du musée", TextInputType.text),
-                          champ_a_remplir(_controller2, "Nombre de livres",
-                              TextInputType.number),
-                          DropdownButtonFormField<String>(
-                            value: _value,
-                            items: _liste,
-                            onChanged: (value) {
-                              setState(() {
-                                _value = value;
-                                _controller3.text = _value;
-                              });
+          listener: (content, state) {
+            if (state is AddMuseeSucessState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('Ajout effectué'),
+                duration: Duration(seconds: 1),
+              ));
+            }
+          },
+          child: SimpleDialog(
+            title: Text(
+              "Création d'un musée".toUpperCase(),
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            children: [
+              champ_a_remplir(
+                  _controller1, "Nom du musée", TextInputType.text),
+              champ_a_remplir(_controller2, "Nombre de livres",
+                  TextInputType.number),
+              DropdownButtonFormField<String>(
+                value: _value,
+                items: _liste,
+                onChanged: (value) {
+                  setState(() {
+                    _value = value;
+                    _controller3.text = _value;
+                  });
 
-                            },
-                            hint: Text("Code Pays"),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                  onPressed: () {
-                                    _controller1.clear();
-                                    _controller2.clear();
-                                    _controller3.clear();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("Anuuler".toUpperCase())),
-                              TextButton(
-                                  onPressed: () {
-                                    if (_controller1.text.isNotEmpty &&
-                                        _controller2.text.isNotEmpty &&
-                                        _controller3.text.isNotEmpty) {
-                                      context.read<AddMuseeBloc>().add(
-                                          OnAddMuseeEvent(
-                                              nomMus: _controller1.text,
-                                              codePays: _controller3.text
-                                                  .toUpperCase(),
-                                              nblivres: int.parse(
-                                                  _controller2.text)));
-                                      _controller1.clear();
-                                      _controller2.clear();
-                                      _controller3.clear();
-                                    } else {
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                              content: Text(
-                                                  'Aucun champ ne doit etre vide')));
-                                    }
-                                  },
-                                  child: Text("Ajouter".toUpperCase()))
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-          ));
+                },
+                hint: Text("Code Pays"),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        _controller1.clear();
+                        _controller2.clear();
+                        _controller3.clear();
+                        Navigator.pop(context);
+                      },
+                      child: Text("Anuuler".toUpperCase())),
+                  TextButton(
+                      onPressed: () {
+                        if (_controller1.text.isNotEmpty &&
+                            _controller2.text.isNotEmpty &&
+                            _controller3.text.isNotEmpty) {
+                          context.read<AddMuseeBloc>().add(
+                              OnAddMuseeEvent(
+                                  nomMus: _controller1.text,
+                                  codePays: _controller3.text
+                                      .toUpperCase(),
+                                  nblivres: int.parse(
+                                      _controller2.text)));
+                          _controller1.clear();
+                          _controller2.clear();
+                          _controller3.clear();
+                        } else {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Aucun champ ne doit etre vide')));
+                        }
+                      },
+                      child: Text("Ajouter".toUpperCase()))
+                ],
+              )
+            ],
+          )));
 
   @override
   Widget build(BuildContext context) {
