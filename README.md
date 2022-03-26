@@ -1,4 +1,5 @@
 # Documentation
+## Développeur: Charaf-Dine Junior A. AÏBOUKI, A. J. Prince Le Bon HOUNDJO
 
 ## Description
 
@@ -88,7 +89,7 @@ La gestion se fait grace aux actions qui sont: **l'ajout, la modification, la le
 
 </details>
 
-- Nous avons égalements des pop-up qui s'affichent lorsqu'on réalise une action:
+- Nous avons égalements une snackbar qui s'affiche lorsqu'on réalise une action:
 
 <details><summary>13</summary>
 
